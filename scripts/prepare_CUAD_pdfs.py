@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 import os
-import requests
 import zipfile
+import shutil
 
+import requests
 import tqdm
 import fitz  # PyMuPDF
 
-# TODO: use argparse to pass those vars as cmdline arguments??
 CUAD_URL = "https://zenodo.org/records/4595826/files/CUAD_v1.zip"
 ZIP_DOWNLOAD_PATH = "CUAD_v1.zip"
 UNZIP_DIR = "CUAD_v1"
 RASTER_DIR = "CUAD_v1_rasterized"
-RASTER_DPI = 300 / 72
+RASTER_DPI = 80 / 72
 
 
 def download_and_unzip():
@@ -63,6 +63,13 @@ def main():
     print("pdf_dict:", pdf_dict)
     # TODO: exclude undesired PDFs, if any. E.g. ones without signatures.
     rasterize_all_pdfs(pdf_dict)
+    print("cleaning up files")
+    clean_up_files()
+
+
+def clean_up_files():
+    shutil.rmtree(UNZIP_DIR, ignore_errors=True)
+    os.remove(ZIP_DOWNLOAD_PATH)
 
 
 if __name__ == "__main__":
