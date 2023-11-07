@@ -33,7 +33,8 @@ class ImageAnnotator:
 
         self.canvas.bind("<Button-1>", self.set_point)
         self.canvas.bind("<Configure>", self.center_image)
-
+        
+        self.image_index = self.find_first_unannotated_image()
         self.load_image()
 
     def load_image(self):
@@ -50,6 +51,13 @@ class ImageAnnotator:
             self.master.quit()
 
 
+    def find_first_unannotated_image(self):
+        for index, image_path in enumerate(self.image_paths):
+            json_file_path = self.get_annotation_file_path(image_path)
+            if not os.path.exists(json_file_path):
+                return index
+        return 0
+    
     def delete_last_point(self, event):
         if self.coordinates:
             self.coordinates.pop()
@@ -179,6 +187,8 @@ def main():
     base_annotation_dir = os.path.join(script_dir, "../../CUAD_v1_annotations")
 
     image_paths = find_images(image_dir)
+    print(f"Found {len(image_paths)} images in {image_dir}")
+    
 
     if not image_paths:
         messagebox.showerror("Error", "No images found in the specified directory.")
