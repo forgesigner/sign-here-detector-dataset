@@ -1,20 +1,31 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import sys
 import json
 
 import tkinter as tk
 from tkinter import messagebox
+from typing import List, Optional
 from PIL import Image, ImageTk
+
+Coordinate = List[tuple[int, int]]
 
 
 class ImageAnnotator:
-    def __init__(self, master, image_paths, base_annotation_dir):
+    def __init__(
+        self,
+        master: tk.Tk,
+        image_paths: List[str],
+        base_annotation_dir: str,
+        start_image_index: int = 0,
+    ):
         self.master = master
         self.image_paths = image_paths
         self.base_annotation_dir = base_annotation_dir
         self.current_image = None
-        self.image_index = 0
+        self.image_index = self.find_first_unannotated_image(start_image_index)
+
         self.coordinates = []
 
         self.canvas = tk.Canvas(master, cursor="cross")
@@ -37,10 +48,9 @@ class ImageAnnotator:
         self.canvas.bind("<Button-1>", self.set_point)
         self.canvas.bind("<Configure>", self.center_image)
 
-        self.image_index = self.find_first_unannotated_image()
         self.load_image()
 
-    def load_image(self):
+    def load_image(self) -> None:
         if 0 <= self.image_index < len(self.image_paths):
             image_path = self.image_paths[self.image_index]
             self.current_image = Image.open(image_path)
@@ -55,25 +65,25 @@ class ImageAnnotator:
             messagebox.showinfo("Finished", "No more images to annotate.")
             self.master.quit()
 
-    def find_first_unannotated_image(self):
-        for index, image_path in enumerate(self.image_paths):
-            json_file_path = self.get_annotation_file_path(image_path)
+    def find_first_unannotated_image(self, start_index: int) -> int:
+        for index in range(start_index, len(self.image_paths)):
+            json_file_path = self.get_annotation_file_path(self.image_paths[index])
             if not os.path.exists(json_file_path):
                 return index
-        return 0
+        return start_index
 
-    def delete_last_point(self, event):
+    def delete_last_point(self, _: tk.Event) -> None:
         if self.coordinates:
             self.coordinates.pop()
             self.center_image()  # Redraw the image and points
 
-    def prev_image(self, event):
+    def prev_image(self, _: tk.Event) -> None:
         if self.image_index > 0:
             self.image_index -= 1
             self.coordinates = []  # Clear current points
             self.load_image()  # Load the previous image
 
-    def load_annotations(self, image_path):
+    def load_annotations(self, image_path: str) -> None:
         json_file_path = self.get_annotation_file_path(image_path)
         if os.path.exists(json_file_path):
             with open(json_file_path, "r") as f:
@@ -81,12 +91,12 @@ class ImageAnnotator:
                 self.coordinates = data.get("centers", [])
                 self.redraw_points()  # Function to redraw points
 
-    def get_annotation_file_path(self, image_path):
+    def get_annotation_file_path(self, image_path: str) -> str:
         annotation_dir = os.path.join(self.base_annotation_dir, self.get_last_directory(image_path))
         json_file = os.path.splitext(os.path.basename(image_path))[0] + ".json"
         return os.path.join(annotation_dir, json_file)
 
-    def redraw_points(self):
+    def redraw_points(self) -> None:
         self.center_image()  # Clear the canvas and redraw the image
         image_x = (self.canvas.winfo_width() - self.tk_image.width()) // 2
         image_y = (self.canvas.winfo_height() - self.tk_image.height()) // 2
@@ -97,7 +107,7 @@ class ImageAnnotator:
                 canvas_x - 5, canvas_y - 5, canvas_x + 5, canvas_y + 5, fill="red"
             )
 
-    def center_image(self, event=None):
+    def center_image(self, _: Optional[tk.Event] = None) -> None:
         self.canvas.delete("all")  # Clear the canvas
         if self.tk_image:
             # Set the scroll region to encompass the image
@@ -120,7 +130,7 @@ class ImageAnnotator:
                     canvas_x - 5, canvas_y - 5, canvas_x + 5, canvas_y + 5, fill="red"
                 )
 
-    def set_point(self, event):
+    def set_point(self, event: tk.Event) -> None:
         image_x = (self.canvas.winfo_width() - self.tk_image.width()) // 2
         image_y = (self.canvas.winfo_height() - self.tk_image.height()) // 2
 
@@ -137,7 +147,7 @@ class ImageAnnotator:
             # We draw the point relative to the canvas, not the image
             self.canvas.create_oval(event.x - 5, event.y - 5, event.x + 5, event.y + 5, fill="red")
 
-    def get_last_directory(self, path):
+    def get_last_directory(self, path: str) -> str:
         # Normalize the path to remove any trailing slash
         path = os.path.normpath(path)
 
@@ -146,10 +156,10 @@ class ImageAnnotator:
 
         return path_parts[-2]
 
-    def save_coordinates_wrapper(self, event=None):
+    def save_coordinates_wrapper(self, _: Optional[tk.Event] = None) -> None:
         self.save_coordinates()
 
-    def save_coordinates(self):
+    def save_coordinates(self) -> None:
         image_path = self.image_paths[self.image_index]
         annotation_dir = os.path.join(self.base_annotation_dir, self.get_last_directory(image_path))
         os.makedirs(annotation_dir, exist_ok=True)
@@ -167,23 +177,37 @@ class ImageAnnotator:
         self.load_image()
 
 
-def find_images(image_dir):
+def find_images(image_dir: str) -> List[str]:
     image_paths = []
     for root, dirs, files in os.walk(image_dir):
         for file in files:
-            if file.endswith(".png"):
+            if file.endswith((".png")):
                 image_paths.append(os.path.join(root, file))
     return sorted(image_paths)
 
 
 def main():
-    image_dir = "CUAD_v1_rasterized"
-    base_annotation_dir = "CUAD_v1_annotations"
+    args = parse_args()
+    image_dir = args.image_dir
+    base_annotation_dir = args.annot_dir
 
     image_paths = find_images(image_dir)
     if not image_paths:
         print("Error: no images found in '{image_dir}'.", file=sys.stderr)
         return
+
+    start_image_index = 0
+    start_image_path = os.path.join(
+        image_dir, "0" * (5 - len(str(args.start_from_doc))) + str(args.start_from_doc), "00000.png"
+    )
+    if args.start_from_doc > 0:
+        try:
+            start_image_index = image_paths.index(start_image_path)
+        except ValueError:
+            messagebox.showerror(
+                "Error", f"The specified start image was not found: {start_image_path}"
+            )
+            sys.exit(1)
 
     print(f"Found {len(image_paths)} images in {image_dir}")
     print(f"Writing annotations to '{base_annotation_dir}'.")
@@ -191,8 +215,26 @@ def main():
     root = tk.Tk()
     root.geometry("800x600")
 
-    ImageAnnotator(root, image_paths, base_annotation_dir)
+    ImageAnnotator(root, image_paths, base_annotation_dir, start_image_index=start_image_index)
     root.mainloop()
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Custom annotator for ForgeSigner dataset")
+    parser.add_argument(
+        "--image_dir",
+        type=str,
+        default="../CUAD_v1_rasterized",
+        help="base directory to search for images",
+    )
+    parser.add_argument(
+        "--annot_dir",
+        type=str,
+        default="../CUAD_v1_annotations",
+        help="base directory to write annotations to",
+    )
+    parser.add_argument("--start_from_doc", type=int, default=0, help="Skip first N documents")
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
