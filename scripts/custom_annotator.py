@@ -9,8 +9,6 @@ from tkinter import messagebox
 from typing import List, Optional
 from PIL import Image, ImageTk
 
-Coordinate = List[tuple[int, int]]
-
 
 class ImageAnnotator:
     def __init__(
