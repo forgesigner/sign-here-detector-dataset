@@ -1,3 +1,5 @@
 tqdm
 requests
 PyMuPDF
+tk
+Pillow
