@@ -191,7 +191,7 @@ def main():
 
     image_paths = find_images(image_dir)
     if not image_paths:
-        print("Error: no images found in '{image_dir}'.", file=sys.stderr)
+        print(f"Error: no images found in '{image_dir}'.", file=sys.stderr)
         return
 
     start_image_index = 0
