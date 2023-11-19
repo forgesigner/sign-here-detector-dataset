@@ -114,7 +114,7 @@ def main():
         print(f"Error: no annotations found in '{annotations_dir}'.", file=sys.stderr)
         return
 
-    print(f"Found {len(annotation_paths)} images in {annotations_dir}")
+    print(f"Found {len(annotation_paths)} annotations in {annotations_dir}")
     print(f"Writing annotations to '{heatmap_dir}'.")
     heatmap_generator = HeatmapGenerator(annotation_paths, heatmap_dir, dy, dx)
     heatmap_generator.generate_heatmaps()
