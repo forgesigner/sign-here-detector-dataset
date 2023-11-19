@@ -29,15 +29,18 @@ def generate_heatmap(dimensions: Tuple[int, int], centers: List[List[int]], sds:
             -(((x - center[0]) ** 2 / (2 * sd[0] ** 2)) + ((y - center[1]) ** 2 / (2 * sd[1] ** 2)))
         )
 
+        # we can't use sum, right?
         combined_heatmap = np.maximum(combined_heatmap, heatmap)
 
     return combined_heatmap
 
 
 class HeatmapGenerator:
-    def __init__(self, annotation_paths: List[str], heatmap_dir: str):
+    def __init__(self, annotation_paths: List[str], heatmap_dir: str, dy: int = 100, dx: int = 100):
         self.annotation_paths = annotation_paths
         self.heatmap_dir = heatmap_dir
+        self.dy = dy
+        self.dx = dx
 
     def get_heatmap_dir_and_file_path(self, annotation_path: str) -> Tuple[str, str]:
         heatmap_dir = os.path.join(self.heatmap_dir, get_last_directory(annotation_path))
@@ -48,7 +51,7 @@ class HeatmapGenerator:
         with open(annotation_path, "r") as f:
             annotation = json.load(f)
         coordinates = annotation.get("centers", None)
-        heatmap = generate_heatmap((width, height), coordinates, [(100, 100)] * len(coordinates))
+        heatmap = generate_heatmap((width, height), coordinates, [(self.dx, self.dy)] * len(coordinates))
         dir_path, heatmap_file_path = self.get_heatmap_dir_and_file_path(annotation_path)
         os.makedirs(dir_path, exist_ok=True)
         plt.imsave(os.path.join(dir_path, heatmap_file_path), heatmap, cmap="gray")
@@ -82,6 +85,20 @@ def parse_args() -> argparse.Namespace:
         help="base directory to write heatmaps to",
     )
 
+    parser.add_argument(
+        "--dx",
+        type=int,
+        default=100,
+        help="x deviation for heatmap generation",
+    )
+
+    parser.add_argument(
+        "--dy",
+        type=int,
+        default=100,
+        help="y deviation for heatmap generation",
+    )
+
     return parser.parse_args()
 
 
@@ -89,6 +106,8 @@ def main():
     args = parse_args()
     annotations_dir = args.annot_dir
     heatmap_dir = args.heatmaps_dir
+    dy = args.dy
+    dx = args.dx
 
     annotation_paths = find_annotations(annotations_dir)
     if not annotation_paths:
@@ -97,7 +116,7 @@ def main():
 
     print(f"Found {len(annotation_paths)} images in {annotations_dir}")
     print(f"Writing annotations to '{heatmap_dir}'.")
-    heatmap_generator = HeatmapGenerator(annotation_paths, heatmap_dir)
+    heatmap_generator = HeatmapGenerator(annotation_paths, heatmap_dir, dy, dx)
     heatmap_generator.generate_heatmaps()
 
 
