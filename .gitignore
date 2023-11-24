@@ -1,6 +1,7 @@
 # Dataset binary artifacts
 CUAD_v1.zip
-CUAD_v1*/
+CUAD_v1/
+CUAD_v1_rasterized/
 
 # Python files
 __pycache__/
