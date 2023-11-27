@@ -7,7 +7,12 @@ import matplotlib.pyplot as plt
 
 from tqdm import tqdm
 from typing import List, Tuple
-from config import ANNOTATED_PDFS_DIR, BASE_HEATMAPS_DIR
+
+# from config import ANNOTATED_PDFS_DIR, BASE_HEATMAPS_DIR
+
+RASTEIZED_PDFS_DIR = "../CUAD_v1_rasterized"
+ANNOTATED_PDFS_DIR = "../CUAD_v1_annotations"
+BASE_HEATMAPS_DIR = "../CUAD_v1_heatmaps"
 
 
 def get_last_directory(path: str) -> str:
@@ -35,12 +40,23 @@ def generate_heatmap(dimensions: Tuple[int, int], centers: List[List[int]], sds:
     return combined_heatmap
 
 
+def generate_single_heatmap_for_image(img_path: str, width: int = 662, height: int = 936, dy: int = 100,
+                                      dx: int = 100) -> np.ndarray:
+    annotation_path = img_path.replace("rasterized", "annotations").replace(".png", ".json")
+    with open(annotation_path, "r") as f:
+        annotation = json.load(f)
+    coordinates = annotation.get("centers", None)
+    heatmap = generate_heatmap((width, height), coordinates, [(dx, dy)] * len(coordinates))
+    return heatmap
+
+
 class HeatmapGenerator:
     def __init__(self, annotation_paths: List[str], heatmap_dir: str, dy: int = 100, dx: int = 100):
         self.annotation_paths = annotation_paths
         self.heatmap_dir = heatmap_dir
         self.dy = dy
         self.dx = dx
+        self.kek = 0
 
     def get_heatmap_dir_and_file_path(self, annotation_path: str) -> Tuple[str, str]:
         heatmap_dir = os.path.join(self.heatmap_dir, get_last_directory(annotation_path))
