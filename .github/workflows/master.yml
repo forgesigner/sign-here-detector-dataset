@@ -20,4 +20,4 @@ jobs:
         ssh-keyscan 34.16.177.159 >> ~/.ssh/known_hosts
 
     - name: Pull code on remote server
-      run: ssh -i ~/.ssh/id_rsa forger@34.16.177.159 "cd /forger/ && git pull"
+      run: ssh -vvv -i ~/.ssh/id_rsa forger@34.16.177.159 "cd /forger/ && git pull"
