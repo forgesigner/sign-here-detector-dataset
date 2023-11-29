@@ -34,7 +34,6 @@ def generate_heatmap(dimensions: Tuple[int, int], centers: List[List[int]], sds:
             -(((x - center[0]) ** 2 / (2 * sd[0] ** 2)) + ((y - center[1]) ** 2 / (2 * sd[1] ** 2)))
         )
 
-        # we can't use sum, right?
         combined_heatmap = np.maximum(combined_heatmap, heatmap)
 
     return combined_heatmap
