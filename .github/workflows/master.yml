@@ -28,4 +28,4 @@ jobs:
         source /forger/.forgervenv/bin/activate &&
         pip3 install -r /forger/sign-here-detector-dataset/requirements.txt &&
         pip3 install -r /forger/sign-here-detector/requirements.txt &&
-        pip3 install PyMuPDF
+        pip3 install PyMuPDF "
