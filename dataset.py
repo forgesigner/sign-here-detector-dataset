@@ -1,5 +1,5 @@
 from PIL import Image
-from splitter import TrainTestSplitter
+from .splitter import TrainTestSplitter
 from scripts.generate_heat_maps import generate_single_heatmap_for_image
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
