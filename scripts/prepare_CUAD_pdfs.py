@@ -10,7 +10,7 @@ import fitz  # PyMuPDF
 CUAD_URL = "https://zenodo.org/records/4595826/files/CUAD_v1.zip"
 ZIP_DOWNLOAD_PATH = "CUAD_v1.zip"
 UNZIP_DIR = "CUAD_v1"
-RASTER_DIR = "CUAD_v1_rasterized"
+RASTER_DIR = "../CUAD_v1_rasterized"
 RASTER_DPI = 80 / 72
 
 
