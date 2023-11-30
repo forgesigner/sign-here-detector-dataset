@@ -4,7 +4,7 @@ import zipfile
 import shutil
 
 import requests
-import tqdm
+from tqdm import tqdm
 import fitz  # PyMuPDF
 
 CUAD_URL = "https://zenodo.org/records/4595826/files/CUAD_v1.zip"
