@@ -23,4 +23,7 @@ jobs:
         ssh-keyscan 34.16.177.159 >> ~/.ssh/known_hosts
 
     - name: Pull code on remote server
-      run: ssh -vvv -i ~/.ssh/id_rsa nikita_khramov@34.16.177.159 "cd /forger/sign-here-detector-dataset && git pull && sudo docker ps"
+      run: ssh -vvv -i ~/.ssh/id_rsa nikita_khramov@34.16.177.159 "cd /forger/sign-here-detector-dataset && 
+        git pull && 
+        chmod +x ./build.sh &&
+        ./build.sh"
