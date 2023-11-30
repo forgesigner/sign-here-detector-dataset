@@ -13,7 +13,7 @@ class SignatureDataset(Dataset):
         self.train = train
         self.transform = transform
         self.splitter = TrainTestSplitter(image_dir='CUAD_v1_rasterized',
-                                          annotation_dir='../CUAD_v1_annotations')
+                                          annotation_dir='CUAD_v1_annotations')
 
         self.image_paths = self.splitter.get_subset(train=self.train)
 

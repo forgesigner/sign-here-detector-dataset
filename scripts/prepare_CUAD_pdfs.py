@@ -4,7 +4,7 @@ import zipfile
 import shutil
 
 import requests
-from tqdm import tqdm
+import tqdm
 import fitz  # PyMuPDF
 
 CUAD_URL = "https://zenodo.org/records/4595826/files/CUAD_v1.zip"
@@ -15,6 +15,8 @@ RASTER_DPI = 80 / 72
 
 
 def download_and_unzip():
+    # chmod 755 CUAD_v1.zip
+
     if not os.path.exists(ZIP_DOWNLOAD_PATH):
         response = requests.get(CUAD_URL, stream=True)
         with open(ZIP_DOWNLOAD_PATH, "wb") as file:
