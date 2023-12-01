@@ -27,5 +27,4 @@ jobs:
         git pull &&
         source /home/nikita_khramov/forger/forgervenv/bin/activate &&
         pip3 install -r /home/nikita_khramov/forger/signheredetectordataset/requirements.txt &&
-        pip3 install -r /home/nikita_khramov/forger/sign-here-detector/requirements.txt &&
         pip3 install PyMuPDF "
