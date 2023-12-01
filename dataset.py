@@ -29,6 +29,8 @@ class SignatureDataset(Dataset):
         heatmap = generate_single_heatmap_for_image(img_path)
 
         if self.transform:
+            image = Image.fromarray(image)
+            heatmap = Image.fromarray(heatmap)
             image = self.transform(image).float()
             heatmap = self.transform(heatmap).float()
 
