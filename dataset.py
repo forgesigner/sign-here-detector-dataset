@@ -3,6 +3,7 @@ from .scripts.generate_heat_maps import generate_single_heatmap_for_image
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 from PIL import Image
+import os
 
 
 
@@ -13,6 +14,7 @@ class SignatureDataset(Dataset):
     ])):
         self.train = train
         self.transform = transform
+
         self.splitter = TrainTestSplitter(image_dir='CUAD_v1_rasterized',
                                           annotation_dir='CUAD_v1_annotations')
 

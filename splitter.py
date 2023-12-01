@@ -30,6 +30,11 @@ def find_annotations_and_images(annotation_dir: str) -> Tuple[List[str], List[st
 
 class TrainTestSplitter:
     def __init__(self, image_dir, annotation_dir, split_ratio=0.8):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Construct the absolute paths
+        image_dir = os.path.join(current_dir, image_dir)
+        annotation_dir = os.path.join(current_dir, annotation_dir)
         self.image_dir = image_dir
         self.annotation_dir = annotation_dir
         self.split_ratio = split_ratio
